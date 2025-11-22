@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fotobooth Interaktif Premium</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #6a11cb;
+        --secondary: #2575fc;
+        --accent: #ff4e50;
+        --dark: #1a1a2e;
+        --light: #f8f9fa;
+        --success: #00b894;
+        --warning: #fdcb6e;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, var(--dark), #16213e);
+        font-family: "Poppins", sans-serif;
+        color: var(--light);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 1400px;
+      }
+
+      /* Header Styles */
+      .header {
+        text-align: center;
+        padding: 3rem 0 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          45deg,
+          rgba(106, 17, 203, 0.1),
+          rgba(37, 117, 252, 0.1)
+        );
+        z-index: -1;
+      }
+
+      .header h1 {
+        font-weight: 800;
+        font-size: 4rem;
+        background: linear-gradient(to right, #ff4e50, #ff8c00, #f9d423);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        margin-bottom: 0.5rem;
+        letter-spacing: 1px;
+        animation: glow 2s infinite alternate;
+      }
+
+      @keyframes glow {
+        from {
+          text-shadow: 0 0 10px rgba(255, 78, 80, 0.5);
+        }
+        to {
+          text-shadow: 0 0 20px rgba(255, 78, 80, 0.8),
+            0 0 30px rgba(255, 140, 0, 0.6);
+        }
+      }
+
+      .header p {
+        font-size: 1.3rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+        font-weight: 300;
+      }
+
+      /* Card Styles */
+      .card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        border-radius: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        margin-bottom: 2.5rem;
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      .card-header {
+        background: rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 1.5rem 2rem;
+        position: relative;
+      }
+
+      .card-header::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+      }
+
+      .card-header h3 {
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .card-body {
+        padding: 2.5rem;
+      }
+
+      /* Preview Container */
+      .preview-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        background: #000;
+        transform-style: preserve-3d;
+        perspective: 1000px;
+      }
+
+      #video,
+      #canvas {
+        width: 100%;
+        display: block;
+        transition: all 0.5s ease;
+      }
+
+      .preview-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          45deg,
+          rgba(106, 17, 203, 0.2),
+          rgba(37, 117, 252, 0.2)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+      }
+
+      .preview-container:hover .preview-overlay {
+        opacity: 1;
+      }
+
+      /* Countdown Styles */
+      .countdown {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 10rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+        z-index: 10;
+        display: none;
+        animation: pulse 1s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      /* Button Styles */
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border: none;
+        border-radius: 50px;
+        padding: 1rem 2.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.4s ease;
+        box-shadow: 0 8px 20px rgba(37, 117, 252, 0.4);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .btn-primary::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        transition: all 0.4s ease;
+        z-index: -1;
+      }
+
+      .btn-primary:hover::before {
+        width: 100%;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(37, 117, 252, 0.5);
+      }
+
+      .btn-outline-light {
+        border-radius: 50px;
+        padding: 1rem 2.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.4s ease;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+      }
+
+      .btn-outline-light:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2.5rem;
+      }
+
+      /* Options Styles */
+      .timer-options,
+      .filter-options,
+      .sticker-options {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .timer-btn,
+      .filter-btn,
+      .sticker-btn {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
+        padding: 0.9rem 1.5rem;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+      }
+
+      .timer-btn:hover,
+      .filter-btn:hover,
+      .sticker-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .timer-btn.active,
+      .filter-btn.active {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: var(--accent);
+        box-shadow: 0 0 20px rgba(255, 78, 80, 0.5);
+        transform: translateY(-5px);
+      }
+
+      .sticker-btn {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+      }
+
+      .sticker-btn:hover {
+        transform: scale(1.1) rotate(10deg);
+      }
+
+      /* Editor Container */
+      .editor-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        display: none;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+      }
+
+      .sticker {
+        position: absolute;
+        cursor: move;
+        user-select: none;
+        z-index: 5;
+        font-size: 60px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        transition: transform 0.2s ease;
+      }
+
+      .sticker:hover {
+        transform: scale(1.1);
+      }
+
+      .result-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2.5rem;
+      }
+
+      /* Gallery Styles */
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2.5rem;
+      }
+
+      .gallery-item {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.4s ease;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .gallery-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 1;
+      }
+
+      .gallery-item:hover::before {
+        opacity: 1;
+      }
+
+      .gallery-item:hover {
+        transform: translateY(-10px) scale(1.03);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+      }
+
+      .gallery-item img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+      }
+
+      .gallery-item:hover img {
+        transform: scale(1.1);
+      }
+
+      /* Utility Classes */
+      .hidden {
+        display: none;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.8s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .flash {
+        animation: flash 0.5s;
+      }
+
+      @keyframes flash {
+        0% {
+          background-color: transparent;
+        }
+        50% {
+          background-color: white;
+        }
+        100% {
+          background-color: transparent;
+        }
+      }
+
+      .floating {
+        animation: floating 3s ease-in-out infinite;
+      }
+
+      @keyframes floating {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-15px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      /* Filter Styles */
+      .filter-grayscale {
+        filter: grayscale(100%);
+      }
+
+      .filter-sepia {
+        filter: sepia(100%);
+      }
+
+      .filter-invert {
+        filter: invert(100%);
+      }
+
+      .filter-blur {
+        filter: blur(3px);
+      }
+
+      .filter-hue-rotate {
+        filter: hue-rotate(90deg);
+      }
+
+      .filter-saturate {
+        filter: saturate(200%);
+      }
+
+      .filter-vintage {
+        filter: sepia(0.5) hue-rotate(-30deg) saturate(1.2);
+      }
+
+      .filter-cold {
+        filter: hue-rotate(180deg) saturate(1.5);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2.5rem;
+        }
+
+        .card-body {
+          padding: 1.5rem;
+        }
+
+        .controls {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .btn-primary,
+        .btn-outline-light {
+          width: 100%;
+          max-width: 300px;
+        }
+
+        .countdown {
+          font-size: 6rem;
+        }
+      }
+
+      /* Particle Background */
+      .particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+      }
+
+      .particle {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 15s infinite linear;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(100vh) rotate(0deg);
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-100px) rotate(360deg);
+          opacity: 0;
+        }
+      }
+
+      /* New Styles for Improved UI */
+      .mode-selector {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .mode-btn {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
+        padding: 1rem 2rem;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+      }
+
+      .mode-btn.active {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: var(--accent);
+        box-shadow: 0 0 20px rgba(255, 78, 80, 0.5);
+        transform: translateY(-5px);
+      }
+
+      .mode-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .continuous-mode {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .continuous-btn {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
+        padding: 0.8rem 1.5rem;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+      }
+
+      .continuous-btn.active {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: var(--success);
+        box-shadow: 0 0 20px rgba(0, 184, 148, 0.5);
+      }
+
+      .continuous-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .photo-counter {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .quick-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .quick-action-btn {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.5rem;
+      }
+
+      .quick-action-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        padding: 1rem 1.5rem;
+        border-radius: 15px;
+        background: rgba(0, 184, 148, 0.9);
+        color: white;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        transform: translateX(400px);
+        transition: transform 0.4s ease;
+      }
+
+      .notification.show {
+        transform: translateX(0);
+      }
+
+      .frame-selector {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .frame-btn {
+        width: 80px;
+        height: 80px;
+        border-radius: 15px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+      }
+
+      .frame-btn.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 20px rgba(255, 78, 80, 0.5);
+        transform: scale(1.1);
+      }
+
+      .frame-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .frame-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Particle Background -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+      <div class="header">
+        <h1><i class="fas fa-camera me-3"></i>FOTOBOOTH PREMIUM</h1>
+        <p class="mt-3">
+          Ambil foto dengan kualitas terbaik, edit dengan stiker eksklusif, dan
+          simpan momen berharga Anda!
+        </p>
+      </div>
+
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <!-- Mode Selector -->
+          <div class="mode-selector">
+            <button class="mode-btn active" data-mode="photo">
+              <i class="fas fa-camera me-2"></i>Mode Foto
+            </button>
+            <button class="mode-btn" data-mode="video">
+              <i class="fas fa-video me-2"></i>Mode Video
+            </button>
+            <button class="mode-btn" data-mode="collage">
+              <i class="fas fa-th me-2"></i>Mode Kolase
+            </button>
+          </div>
+
+          <!-- Camera Card -->
+          <div class="card floating">
+            <div class="card-header">
+              <h3><i class="fas fa-camera-retro"></i> Mode Fotobooth</h3>
+              <div class="photo-counter mt-2">
+                <i class="fas fa-images"></i>
+                <span id="photoCount">0 Foto</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="preview-container">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas" class="hidden"></canvas>
+                <div id="countdown" class="countdown">3</div>
+                <div class="preview-overlay">
+                  <div class="text-center">
+                    <i class="fas fa-camera fa-3x mb-3"></i>
+                    <p>Kamera Siap Digunakan</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="continuous-mode">
+                <button class="continuous-btn" id="continuousMode">
+                  <i class="fas fa-sync-alt me-2"></i>Mode Berkelanjutan
+                </button>
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="autoSave"
+                  />
+                  <label class="form-check-label" for="autoSave"
+                    >Simpan Otomatis</label
+                  >
+                </div>
+              </div>
+
+              <div class="controls">
+                <button id="captureBtn" class="btn btn-primary">
+                  <i class="fas fa-camera me-2"></i>Ambil Foto
+                </button>
+                <button id="retakeBtn" class="btn btn-outline-light hidden">
+                  <i class="fas fa-redo me-2"></i>Ambil Ulang
+                </button>
+                <button id="editBtn" class="btn btn-outline-light hidden">
+                  <i class="fas fa-edit me-2"></i>Edit Foto
+                </button>
+                <button id="saveBtn" class="btn btn-outline-light hidden">
+                  <i class="fas fa-download me-2"></i>Simpan Foto
+                </button>
+              </div>
+
+              <div class="quick-actions">
+                <button class="quick-action-btn" id="flashToggle">
+                  <i class="fas fa-bolt"></i>
+                </button>
+                <button class="quick-action-btn" id="switchCamera">
+                  <i class="fas fa-sync"></i>
+                </button>
+                <button class="quick-action-btn" id="fullscreenToggle">
+                  <i class="fas fa-expand"></i>
+                </button>
+              </div>
+
+              <div class="mt-5">
+                <h5><i class="fas fa-clock me-2"></i>Pilih Timer:</h5>
+                <div class="timer-options">
+                  <button class="timer-btn active" data-timer="0">
+                    Tidak Ada
+                  </button>
+                  <button class="timer-btn" data-timer="3">3 Detik</button>
+                  <button class="timer-btn" data-timer="5">5 Detik</button>
+                  <button class="timer-btn" data-timer="10">10 Detik</button>
+                </div>
+              </div>
+
+              <div class="mt-5">
+                <h5><i class="fas fa-border-style me-2"></i>Pilih Bingkai:</h5>
+                <div class="frame-selector">
+                  <div class="frame-btn active" data-frame="none">
+                    <div
+                      class="frame-preview"
+                      style="
+                        background: rgba(255, 255, 255, 0.1);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i class="fas fa-times"></i>
+                    </div>
+                  </div>
+                  <div class="frame-btn" data-frame="polaroid">
+                    <div
+                      class="frame-preview"
+                      style="
+                        background: white;
+                        border: 10px solid white;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+                      "
+                    ></div>
+                  </div>
+                  <div class="frame-btn" data-frame="vintage">
+                    <div
+                      class="frame-preview"
+                      style="
+                        background: #f3e5ab;
+                        border: 15px solid #8b4513;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+                      "
+                    ></div>
+                  </div>
+                  <div class="frame-btn" data-frame="modern">
+                    <div
+                      class="frame-preview"
+                      style="
+                        background: linear-gradient(45deg, #6a11cb, #2575fc);
+                        border: 5px solid rgba(255, 255, 255, 0.5);
+                      "
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Editor Card -->
+          <div id="editorSection" class="card hidden">
+            <div class="card-header">
+              <h3><i class="fas fa-magic"></i> Editor Foto Premium</h3>
+            </div>
+            <div class="card-body">
+              <div class="editor-container">
+                <canvas id="editorCanvas"></canvas>
+              </div>
+
+              <div class="mt-5">
+                <h5><i class="fas fa-filter me-2"></i>Filter Foto:</h5>
+                <div class="filter-options">
+                  <button class="filter-btn active" data-filter="none">
+                    Normal
+                  </button>
+                  <button class="filter-btn" data-filter="grayscale">
+                    Grayscale
+                  </button>
+                  <button class="filter-btn" data-filter="sepia">Sepia</button>
+                  <button class="filter-btn" data-filter="vintage">
+                    Vintage
+                  </button>
+                  <button class="filter-btn" data-filter="invert">
+                    Invert
+                  </button>
+                  <button class="filter-btn" data-filter="cold">Cold</button>
+                  <button class="filter-btn" data-filter="saturate">
+                    Saturate
+                  </button>
+                </div>
+              </div>
+
+              <div class="mt-5">
+                <h5>
+                  <i class="fas fa-sticky-note me-2"></i>Stiker Eksklusif:
+                </h5>
+                <div class="sticker-options">
+                  <button class="sticker-btn" data-sticker="❤">❤</button>
+                  <button class="sticker-btn" data-sticker="😊">😊</button>
+                  <button class="sticker-btn" data-sticker="😂">😂</button>
+                  <button class="sticker-btn" data-sticker="😍">😍</button>
+                  <button class="sticker-btn" data-sticker="👍">👍</button>
+                  <button class="sticker-btn" data-sticker="⭐">⭐</button>
+                  <button class="sticker-btn" data-sticker="🎉">🎉</button>
+                  <button class="sticker-btn" data-sticker="📸">📸</button>
+                  <button class="sticker-btn" data-sticker="✨">✨</button>
+                  <button class="sticker-btn" data-sticker="🎈">🎈</button>
+                </div>
+              </div>
+
+              <div class="result-actions">
+                <button id="applyEditBtn" class="btn btn-primary">
+                  <i class="fas fa-check me-2"></i>Terapkan Edit
+                </button>
+                <button id="cancelEditBtn" class="btn btn-outline-light">
+                  <i class="fas fa-times me-2"></i>Batal
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gallery Card -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-images"></i> Galeri Foto</h3>
+              <button
+                id="clearGallery"
+                class="btn btn-sm btn-outline-light mt-2"
+              >
+                <i class="fas fa-trash me-1"></i>Hapus Semua
+              </button>
+            </div>
+            <div class="card-body">
+              <div id="gallery" class="gallery">
+                <div class="text-center w-100 py-5">
+                  <i class="fas fa-image fa-3x mb-3 opacity-50"></i>
+                  <p class="opacity-75">
+                    Belum ada foto yang diambil. Ambil foto pertama Anda!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Elemen DOM
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const editorCanvas = document.getElementById("editorCanvas");
+      const countdownEl = document.getElementById("countdown");
+      const captureBtn = document.getElementById("captureBtn");
+      const retakeBtn = document.getElementById("retakeBtn");
+      const editBtn = document.getElementById("editBtn");
+      const saveBtn = document.getElementById("saveBtn");
+      const applyEditBtn = document.getElementById("applyEditBtn");
+      const cancelEditBtn = document.getElementById("cancelEditBtn");
+      const editorSection = document.getElementById("editorSection");
+      const gallery = document.getElementById("gallery");
+      const particlesContainer = document.getElementById("particles");
+      const photoCount = document.getElementById("photoCount");
+      const continuousModeBtn = document.getElementById("continuousMode");
+      const autoSaveToggle = document.getElementById("autoSave");
+      const flashToggle = document.getElementById("flashToggle");
+      const switchCameraBtn = document.getElementById("switchCamera");
+      const fullscreenToggle = document.getElementById("fullscreenToggle");
+      const clearGalleryBtn = document.getElementById("clearGallery");
+
+      // Variabel state
+      let currentStream = null;
+      let currentFilter = "none";
+      let selectedTimer = 0;
+      let stickers = [];
+      let isEditing = false;
+      let photoGallery = [];
+      let isContinuousMode = false;
+      let isFrontCamera = true;
+      let photoCounter = 0;
+      let currentFrame = "none";
+
+      // Inisialisasi partikel background
+      function initParticles() {
+        for (let i = 0; i < 50; i++) {
+          const particle = document.createElement("div");
+          particle.classList.add("particle");
+
+          const size = Math.random() * 20 + 5;
+          particle.style.width = `${size}px`;
+          particle.style.height = `${size}px`;
+          particle.style.left = `${Math.random() * 100}vw`;
+          particle.style.animationDelay = `${Math.random() * 15}s`;
+          particle.style.animationDuration = `${15 + Math.random() * 10}s`;
+
+          particlesContainer.appendChild(particle);
+        }
+      }
+
+      // Inisialisasi kamera
+      async function initCamera() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+              facingMode: isFrontCamera ? "user" : "environment",
+            },
+            audio: false,
+          });
+
+          // Hentikan stream sebelumnya jika ada
+          if (currentStream) {
+            currentStream.getTracks().forEach((track) => track.stop());
+          }
+
+          video.srcObject = stream;
+          currentStream = stream;
+
+          // Set dimensi canvas sesuai video
+          video.addEventListener("loadedmetadata", () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            editorCanvas.width = video.videoWidth;
+            editorCanvas.height = video.videoHeight;
+          });
+        } catch (err) {
+          console.error("Error accessing camera: ", err);
+          showNotification(
+            "Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.",
+            "error"
+          );
+        }
+      }
+
+      // Timer options
+      document.querySelectorAll(".timer-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          document
+            .querySelectorAll(".timer-btn")
+            .forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+          selectedTimer = parseInt(this.getAttribute("data-timer"));
+        });
+      });
+
+      // Filter options
+      document.querySelectorAll(".filter-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          document
+            .querySelectorAll(".filter-btn")
+            .forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+          currentFilter = this.getAttribute("data-filter");
+
+          if (isEditing) {
+            applyFilterToEditor();
+          }
+        });
+      });
+
+      // Sticker options
+      document.querySelectorAll(".sticker-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const stickerText = this.getAttribute("data-sticker");
+          addStickerToEditor(stickerText);
+        });
+      });
+
+      // Frame options
+      document.querySelectorAll(".frame-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          document
+            .querySelectorAll(".frame-btn")
+            .forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+          currentFrame = this.getAttribute("data-frame");
+        });
+      });
+
+      // Mode options
+      document.querySelectorAll(".mode-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          document
+            .querySelectorAll(".mode-btn")
+            .forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+          const mode = this.getAttribute("data-mode");
+          // Implementasi mode berbeda di sini
+          showNotification(`Mode ${mode} diaktifkan`, "success");
+        });
+      });
+
+      // Fungsi untuk menambahkan stiker ke editor
+      function addStickerToEditor(text) {
+        const sticker = document.createElement("div");
+        sticker.className = "sticker";
+        sticker.textContent = text;
+        sticker.style.fontSize = "60px";
+        sticker.style.left = "50%";
+        sticker.style.top = "50%";
+        sticker.style.transform = "translate(-50%, -50%)";
+
+        // Membuat stiker dapat digerakkan
+        makeStickerDraggable(sticker);
+
+        editorCanvas.parentNode.appendChild(sticker);
+        stickers.push(sticker);
+      }
+
+      // Fungsi untuk membuat stiker dapat digerakkan
+      function makeStickerDraggable(sticker) {
+        let pos1 = 0,
+          pos2 = 0,
+          pos3 = 0,
+          pos4 = 0;
+
+        sticker.onmousedown = dragMouseDown;
+
+        function dragMouseDown(e) {
+          e.preventDefault();
+          // Dapatkan posisi kursor saat ini
+          pos3 = e.clientX;
+          pos4 = e.clientY;
+          document.onmouseup = closeDragElement;
+          document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+          e.preventDefault();
+          // Hitung posisi baru
+          pos1 = pos3 - e.clientX;
+          pos2 = pos4 - e.clientY;
+          pos3 = e.clientX;
+          pos4 = e.clientY;
+          // Atur posisi elemen
+          sticker.style.top = sticker.offsetTop - pos2 + "px";
+          sticker.style.left = sticker.offsetLeft - pos1 + "px";
+        }
+
+        function closeDragElement() {
+          // Hentikan pergerakan saat mouse dilepas
+          document.onmouseup = null;
+          document.onmousemove = null;
+        }
+      }
+
+      // Fungsi untuk menerapkan filter ke editor
+      function applyFilterToEditor() {
+        const ctx = editorCanvas.getContext("2d");
+        ctx.filter = getFilterValue(currentFilter);
+        ctx.drawImage(canvas, 0, 0, editorCanvas.width, editorCanvas.height);
+        ctx.filter = "none";
+      }
+
+      // Fungsi untuk mendapatkan nilai filter CSS
+      function getFilterValue(filterName) {
+        switch (filterName) {
+          case "grayscale":
+            return "grayscale(100%)";
+          case "sepia":
+            return "sepia(100%)";
+          case "invert":
+            return "invert(100%)";
+          case "blur":
+            return "blur(3px)";
+          case "hue-rotate":
+            return "hue-rotate(90deg)";
+          case "saturate":
+            return "saturate(200%)";
+          case "vintage":
+            return "sepia(0.5) hue-rotate(-30deg) saturate(1.2)";
+          case "cold":
+            return "hue-rotate(180deg) saturate(1.5)";
+          default:
+            return "none";
+        }
+      }
+
+      // Fungsi untuk mengambil foto
+      captureBtn.addEventListener("click", function () {
+        if (selectedTimer > 0) {
+          startCountdown();
+        } else {
+          takePhoto();
+        }
+      });
+
+      // Fungsi untuk memulai countdown
+      function startCountdown() {
+        let count = selectedTimer;
+        countdownEl.textContent = count;
+        countdownEl.style.display = "block";
+        captureBtn.disabled = true;
+
+        const countdownInterval = setInterval(() => {
+          count--;
+          countdownEl.textContent = count;
+
+          if (count <= 0) {
+            clearInterval(countdownInterval);
+            countdownEl.style.display = "none";
+            takePhoto();
+            captureBtn.disabled = false;
+
+            // Jika mode berkelanjutan aktif, mulai countdown lagi
+            if (isContinuousMode) {
+              setTimeout(() => {
+                if (selectedTimer > 0) {
+                  startCountdown();
+                } else {
+                  takePhoto();
+                }
+              }, 1000);
+            }
+          }
+        }, 1000);
+      }
+
+      // Fungsi untuk mengambil foto
+      function takePhoto() {
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Terapkan efek flash
+        document.querySelector(".preview-container").classList.add("flash");
+        setTimeout(() => {
+          document
+            .querySelector(".preview-container")
+            .classList.remove("flash");
+        }, 500);
+
+        // Sembunyikan video, tampilkan canvas
+        video.classList.add("hidden");
+        canvas.classList.remove("hidden");
+
+        // Tampilkan tombol aksi
+        retakeBtn.classList.remove("hidden");
+        editBtn.classList.remove("hidden");
+        saveBtn.classList.remove("hidden");
+        captureBtn.disabled = true;
+
+        // Jika auto save aktif, simpan otomatis
+        if (autoSaveToggle.checked) {
+          setTimeout(() => {
+            savePhoto();
+          }, 500);
+        }
+      }
+
+      // Fungsi untuk mengambil ulang foto
+      retakeBtn.addEventListener("click", function () {
+        video.classList.remove("hidden");
+        canvas.classList.add("hidden");
+
+        retakeBtn.classList.add("hidden");
+        editBtn.classList.add("hidden");
+        saveBtn.classList.add("hidden");
+        captureBtn.disabled = false;
+      });
+
+      // Fungsi untuk membuka editor
+      editBtn.addEventListener("click", function () {
+        isEditing = true;
+        editorSection.classList.remove("hidden");
+        editorSection.scrollIntoView({ behavior: "smooth" });
+
+        // Salin foto ke editor canvas
+        const ctx = editorCanvas.getContext("2d");
+        ctx.drawImage(canvas, 0, 0, editorCanvas.width, editorCanvas.height);
+
+        // Terapkan filter yang dipilih
+        applyFilterToEditor();
+      });
+
+      // Fungsi untuk menerapkan edit
+      applyEditBtn.addEventListener("click", function () {
+        // Gambar semua stiker ke canvas
+        const ctx = editorCanvas.getContext("2d");
+
+        // Terapkan filter
+        ctx.filter = getFilterValue(currentFilter);
+        ctx.drawImage(canvas, 0, 0, editorCanvas.width, editorCanvas.height);
+        ctx.filter = "none";
+
+        // Gambar stiker
+        stickers.forEach((sticker) => {
+          const rect = sticker.getBoundingClientRect();
+          const canvasRect = editorCanvas.getBoundingClientRect();
+
+          const x = rect.left - canvasRect.left;
+          const y = rect.top - canvasRect.top;
+          const width = rect.width;
+          const height = rect.height;
+
+          ctx.font = `${sticker.style.fontSize} Arial`;
+          ctx.fillText(sticker.textContent, x, y + height);
+        });
+
+        // Salin hasil edit ke canvas utama
+        const mainCtx = canvas.getContext("2d");
+        mainCtx.drawImage(editorCanvas, 0, 0, canvas.width, canvas.height);
+
+        // Tutup editor
+        closeEditor();
+      });
+
+      // Fungsi untuk membatalkan edit
+      cancelEditBtn.addEventListener("click", closeEditor);
+
+      // Fungsi untuk menutup editor
+      function closeEditor() {
+        isEditing = false;
+        editorSection.classList.add("hidden");
+
+        // Hapus semua stiker
+        stickers.forEach((sticker) => sticker.remove());
+        stickers = [];
+      }
+
+      // Fungsi untuk menyimpan foto
+      saveBtn.addEventListener("click", savePhoto);
+
+      function savePhoto() {
+        // Buat elemen gambar untuk galeri
+        const imgData = canvas.toDataURL("image/png");
+        const galleryItem = document.createElement("div");
+        galleryItem.className = "gallery-item fade-in";
+
+        const img = document.createElement("img");
+        img.src = imgData;
+        img.alt = "Foto Fotobooth";
+
+        galleryItem.appendChild(img);
+
+        // Tambahkan ke galeri
+        if (
+          gallery.children.length === 1 &&
+          gallery.children[0].tagName === "DIV" &&
+          gallery.children[0].classList.contains("text-center")
+        ) {
+          gallery.innerHTML = "";
+        }
+
+        gallery.appendChild(galleryItem);
+
+        // Simpan ke array galeri
+        photoGallery.push(imgData);
+
+        // Update counter
+        photoCounter++;
+        photoCount.textContent = `${photoCounter} Foto`;
+
+        // Tampilkan notifikasi
+        showNotification("Foto berhasil disimpan ke galeri!", "success");
+
+        // Reset ke mode kamera jika bukan mode berkelanjutan
+        if (!isContinuousMode) {
+          retakeBtn.click();
+        } else {
+          // Jika mode berkelanjutan, ambil foto berikutnya
+          video.classList.remove("hidden");
+          canvas.classList.add("hidden");
+          retakeBtn.classList.add("hidden");
+          editBtn.classList.add("hidden");
+          saveBtn.classList.add("hidden");
+          captureBtn.disabled = false;
+
+          if (selectedTimer > 0) {
+            startCountdown();
+          }
+        }
+      }
+
+      // Mode berkelanjutan
+      continuousModeBtn.addEventListener("click", function () {
+        isContinuousMode = !isContinuousMode;
+        continuousModeBtn.classList.toggle("active", isContinuousMode);
+
+        if (isContinuousMode) {
+          continuousModeBtn.innerHTML =
+            '<i class="fas fa-sync-alt me-2"></i>Mode Berkelanjutan Aktif';
+          showNotification("Mode berkelanjutan diaktifkan", "success");
+        } else {
+          continuousModeBtn.innerHTML =
+            '<i class="fas fa-sync-alt me-2"></i>Mode Berkelanjutan';
+          showNotification("Mode berkelanjutan dinonaktifkan", "info");
+        }
+      });
+
+      // Switch camera
+      switchCameraBtn.addEventListener("click", function () {
+        isFrontCamera = !isFrontCamera;
+        initCamera();
+        showNotification(
+          `Kamera ${isFrontCamera ? "depan" : "belakang"} diaktifkan`,
+          "success"
+        );
+      });
+
+      // Fullscreen toggle
+      fullscreenToggle.addEventListener("click", function () {
+        const previewContainer = document.querySelector(".preview-container");
+
+        if (!document.fullscreenElement) {
+          if (previewContainer.requestFullscreen) {
+            previewContainer.requestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          }
+        }
+      });
+
+      // Clear gallery
+      clearGalleryBtn.addEventListener("click", function () {
+        if (photoGallery.length > 0) {
+          if (
+            confirm("Apakah Anda yakin ingin menghapus semua foto di galeri?")
+          ) {
+            gallery.innerHTML = `
+                        <div class="text-center w-100 py-5">
+                            <i class="fas fa-image fa-3x mb-3 opacity-50"></i>
+                            <p class="opacity-75">Belum ada foto yang diambil. Ambil foto pertama Anda!</p>
+                        </div>
+                    `;
+            photoGallery = [];
+            photoCounter = 0;
+            photoCount.textContent = "0 Foto";
+            showNotification("Galeri berhasil dikosongkan", "success");
+          }
+        } else {
+          showNotification("Galeri sudah kosong", "info");
+        }
+      });
+
+      // Fungsi untuk menampilkan notifikasi
+      function showNotification(message, type) {
+        // Hapus notifikasi sebelumnya jika ada
+        const existingNotification = document.querySelector(".notification");
+        if (existingNotification) {
+          existingNotification.remove();
+        }
+
+        const notification = document.createElement("div");
+        notification.className = `notification ${
+          type === "success" ? "success" : "info"
+        }`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // Tampilkan notifikasi
+        setTimeout(() => {
+          notification.classList.add("show");
+        }, 100);
+
+        // Sembunyikan notifikasi setelah 3 detik
+        setTimeout(() => {
+          notification.classList.remove("show");
+          setTimeout(() => {
+            notification.remove();
+          }, 400);
+        }, 3000);
+      }
+
+      // Inisialisasi saat halaman dimuat
+      window.addEventListener("load", () => {
+        initCamera();
+        initParticles();
+      });
+    </script>
+  </body>
+</html>
